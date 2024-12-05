@@ -1,0 +1,68 @@
+<div class="modal fade" id="editJadwalModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Jadwal</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form id="editJadwalForm" method="POST">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">Lapangan</label>
+            <input
+              type="text"
+              class="form-control"
+              id="editLapangan"
+              disabled
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Tanggal</label>
+            <input
+              type="date"
+              name="tanggal"
+              class="form-control"
+              id="editTanggal"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Jam Mulai</label>
+            <input
+              type="time"
+              name="jam_mulai"
+              class="form-control"
+              id="editJamMulai"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Jam Selesai</label>
+            <input
+              type="time"
+              name="jam_selesai"
+              class="form-control"
+              id="editJamSelesai"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select name="is_available" class="form-select" id="editStatus">
+              <option value="True">Available</option>
+              <option value="False">Booked</option>
+            </select>
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">Update</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

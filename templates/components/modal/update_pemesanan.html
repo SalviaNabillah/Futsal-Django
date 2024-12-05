@@ -1,0 +1,52 @@
+<div class="modal fade" id="updateModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Update Status Pemesanan</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="updateForm" method="POST">
+          {% csrf_token %}
+          <input type="hidden" id="pemesananId" name="pemesanan_id">
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select class="form-select" name="status" id="statusSelect">
+              <option value="dibatalkan">Dibatalkan</option>
+              <option value="pending">Pending</option>
+              <option value="diterima">Diterima</option>
+              <option value="selesai">Selesai</option>
+            </select>
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">Simpan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const updateButtons = document.querySelectorAll('.update-btn');
+  const updateForm = document.getElementById('updateForm');
+  
+  updateButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const id = this.dataset.id;
+      const status = this.dataset.status;
+      
+      // Set form action URL
+      updateForm.action = `/staff/pemesanan/${id}/update/`;
+      
+      // Set current values
+      document.getElementById('pemesananId').value = id;
+      document.getElementById('statusSelect').value = status;
+      
+      // Show modal
+      new bootstrap.Modal(document.getElementById('updateModal')).show();
+    });
+  });
+});
+</script>

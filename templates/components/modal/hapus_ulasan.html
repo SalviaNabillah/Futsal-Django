@@ -1,0 +1,49 @@
+<div class="modal fade" id="deleteReviewModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Konfirmasi Hapus</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>Apakah anda yakin ingin menghapus ulasan ini?</p>
+        <form id="deleteReviewForm" method="POST">
+          {% csrf_token %}
+          <div class="d-grid gap-2">
+            <button type="submit" class="btn btn-danger">Hapus</button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Batal
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add JavaScript -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Delete review button handler
+    document.querySelectorAll(".delete-review").forEach((button) => {
+      button.addEventListener("click", function () {
+        const id = this.dataset.id;
+        const modal = new bootstrap.Modal(
+          document.getElementById("deleteReviewModal")
+        );
+        document.getElementById(
+          "deleteReviewForm"
+        ).action = `/staff/ulasan/${id}/delete/`;
+        modal.show();
+      });
+    });
+  });
+</script>

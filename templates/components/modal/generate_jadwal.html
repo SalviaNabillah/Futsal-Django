@@ -1,0 +1,73 @@
+<div class="modal fade" id="generateJadwalModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Generate Jadwal</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" action="{% url 'generate_jadwal' %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">Lapangan</label>
+            <select name="lapangan" class="form-select" required>
+              {% for l in lapangan %}
+              <option value="{{ l.id }}">{{ l.nama }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Tanggal Mulai</label>
+            <input
+              type="date"
+              name="tanggal_mulai"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Tanggal Selesai</label>
+            <input
+              type="date"
+              name="tanggal_selesai"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Jam Mulai</label>
+            <input type="time" name="jam_mulai" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Jam Selesai</label>
+            <input
+              type="time"
+              name="jam_selesai"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Durasi (menit)</label>
+            <input
+              type="number"
+              name="durasi"
+              class="form-control"
+              min="30"
+              step="30"
+              value="60"
+              required
+            />
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">Generate</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

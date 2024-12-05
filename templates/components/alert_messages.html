@@ -1,0 +1,42 @@
+{% if messages %}
+<div id="message-container">
+  {% for message in messages %}
+  <div
+    class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% elif message.tags == 'success' %}alert-success{% else %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show"
+    role="alert"
+  >
+    {{ message }}
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="alert"
+      aria-label="Close"
+    ></button>
+  </div>
+  {% endfor %}
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const alerts = document.querySelectorAll(".alert");
+
+    // hanya tampilkan 1 alert
+    if (alerts.length > 1) {
+      alerts.forEach((alert, index) => {
+        if (index < alerts.length - 1) {
+          alert.remove();
+        }
+      });
+    }
+
+    // Auto hapus alert setelah 3 detik
+    setTimeout(function () {
+      const alert = document.querySelector(".alert");
+      if (alert) {
+        const closeButton = alert.querySelector(".btn-close");
+        if (closeButton) closeButton.click();
+      }
+    }, 3000);
+  });
+</script>
+{% endif %}

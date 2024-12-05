@@ -1,0 +1,22 @@
+{% extends "../base.html" %} {% load static %} {% block content %}
+<div class="container-fluid p-0 position-relative">
+  <img
+    class="img-fluid w-100"
+    src="{% static 'img/landing.jpg' %}"
+    style="object-fit: cover; height: 80vh"
+  />
+  <div class="overlay"></div>
+
+  <div class="position-absolute top-0 start-50 translate-middle">
+    {% include '../components/alert_messages.html' %}
+  </div>
+
+  <div
+    class="text-white text-center position-absolute top-50 start-50 translate-middle"
+  >
+    <h1>XArena Futsal Booking</h1>
+    <p>Welcome to XArena Futsal Booking!</p>
+    <p>This is Landing Page</p>
+  </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,90 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a
+      href="{% url 'landing' %}"
+      class="navbar-brand text-white"
+      style="font-size: 30px; font-weight: 700"
+      >XARENA</a
+    >
+
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+      aria-controls="navbarNav"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <i class="ri-menu-line text-white fs-3"></i>
+    </button>
+
+    <div class="collapse navbar-collapse text-center" id="navbarNav">
+      <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+        {% if user.is_authenticated %} {% if user.is_superuser %}
+        <li class="nav-item">
+          <a
+            class="nav-link {% if request.resolver_match.url_name == 'dashboard_admin' %}active{% endif %}"
+            href="{% url 'dashboard_admin' %}"
+            >Dashboard</a
+          >
+        </li>
+        {% elif user.is_staff %}
+        <li class="nav-item">
+          <a
+            class="nav-link {% if request.resolver_match.url_name == 'dashboard_staff' %}active{% endif %}"
+            href="{% url 'dashboard_staff' %}"
+            >Dashboard</a
+          >
+        </li>
+        {% else %}
+        <li class="nav-item">
+          <a
+            class="nav-link {% if request.resolver_match.url_name == 'dashboard_user' %}active{% endif %}"
+            href="{% url 'dashboard_user' %}"
+            >Dashboard</a
+          >
+        </li>
+        {% endif %} {% endif %}
+        <li class="nav-item">
+          <a
+            class="nav-link {% if request.resolver_match.url_name == 'landing' %}active{% endif %}"
+            href="{% url 'landing' %}"
+            >Home</a
+          >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}"
+            href="{% url 'about' %}"
+            >About</a
+          >
+        </li>
+        {% if not user.is_staff and not user.is_superuser %}
+        <li class="nav-item">
+          <a
+            class="nav-link {% if request.resolver_match.url_name == 'list_lapangan' or request.resolver_match.url_name == 'detail_lapangan' %}active{% endif %}"
+            href="{% url 'list_lapangan' %}"
+            >Lapangan</a
+          >
+        </li>
+        {% endif %}
+      </ul>
+
+      <div class="d-flex gap-3 justify-content-center">
+        {% if user.is_authenticated %}
+        <button type="button" class="nav-item btn btn-danger btn-sm">
+          <a class="nav-link text-white" href="{% url 'logout' %}">LOGOUT</a>
+        </button>
+        {% else %}
+        <button type="button" class="nav-item btn btn-primary btn-sm">
+          <a class="nav-link" href="{% url 'login' %}">MASUK</a>
+        </button>
+        <button type="button" class="nav-item btn btn-outline-primary btn-sm">
+          <a class="nav-link" href="{% url 'register' %}">DAFTAR</a>
+        </button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</nav>

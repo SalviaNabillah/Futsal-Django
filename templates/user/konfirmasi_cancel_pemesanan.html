@@ -1,0 +1,22 @@
+{% extends '../base.html' %} {% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow">
+        <div class="card-body text-center">
+          <h4>Konfirmasi Pembatalan</h4>
+          <p>Apakah Anda yakin ingin membatalkan pemesanan ini?</p>
+
+          <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Ya, Batalkan</button>
+            <a href="{% url 'dashboard_user' %}" class="btn btn-secondary"
+              >Tidak</a
+            >
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

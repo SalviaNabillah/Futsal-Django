@@ -1,0 +1,134 @@
+{% extends './base_admin.html' %}
+
+{% block admin_content %}
+<div class="container-fluid mt-4">
+  {% include '../components/alert_messages.html' %}
+
+  <!-- Header -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Manage Jadwal</h1>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#generateJadwalModal">
+      <i class="ri-add-line"></i> Generate Jadwal
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="card shadow mb-4">
+    <div class="card-body">
+      <form method="GET" class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Lapangan</label>
+          <select name="lapangan" class="form-select" onchange="this.form.submit()">
+            <option value="">Semua Lapangan</option>
+            {% for l in lapangan %}
+            <option value="{{ l.id }}" {% if selected_lapangan|add:"0" == l.id %}selected{% endif %}>
+              {{ l.nama }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Bulan</label>
+          <select name="month" class="form-select" onchange="this.form.submit()">
+            <option value="">Semua Bulan</option>
+            {% for m_num, m_name in months %}
+            <option value="{{ m_num }}" {% if selected_month|add:"0" == m_num %}selected{% endif %}>
+              {{ m_name }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Daily Schedule Cards -->
+  <div class="row">
+    {% for date, schedules in dates %}
+    <div class="col-md-6 col-xl-4 mb-4">
+      <div class="card shadow h-100">
+        <div class="card-header bg-primary text-white">
+          <h6 class="m-0 font-weight-bold">{{ date|date:"l, d F Y" }}</h6>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <thead>
+                <tr>
+                  <th>Jam</th>
+                  <th>Lapangan</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for schedule in schedules %}
+                <tr>
+                  <td>{{ schedule.jam_mulai }} - {{ schedule.jam_selesai }}</td>
+                  <td>{{ schedule.lapangan.nama }}</td>
+                  <td>
+                    <span class="badge {% if schedule.is_available %}bg-success{% else %}bg-danger{% endif %}">
+                      {{ schedule.is_available|yesno:"Available,Booked" }}
+                    </span>
+                  </td>
+                  <td>
+                    <button 
+                      class="btn btn-info btn-sm edit-jadwal"
+                      data-id="{{ schedule.id }}"
+                      data-tanggal="{{ schedule.tanggal|date:'Y-m-d' }}"
+                      data-jam-mulai="{{ schedule.jam_mulai|time:'H:i' }}"
+                      data-jam-selesai="{{ schedule.jam_selesai|time:'H:i' }}" 
+                      data-is-available="{{ schedule.is_available|lower }}"
+                      data-lapangan="{{ schedule.lapangan.nama }}"
+                      data-bs-toggle="modal"
+                      data-bs-target="#editJadwalModal"
+                    >
+                      <i class="ri-edit-line"></i>
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+      <div class="alert alert-info">
+        Tidak ada jadwal yang tersedia
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% include '../components/pagination.html' with page_obj=jadwal %}
+
+  <!-- Generate Jadwal Modal -->
+  {% include '../components/modal/generate_jadwal.html' %}
+  
+  <!-- Edit Jadwal Modal -->
+  {% include '../components/modal/edit_jadwal.html' %}
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.edit-jadwal').forEach(button => {
+      button.addEventListener('click', function() {
+        const id = this.dataset.id;
+        const tanggal = this.dataset.tanggal;
+        const jamMulai = this.dataset.jamMulai;
+        const jamSelesai = this.dataset.jamSelesai;
+        const isAvailable = this.dataset.isAvailable;
+        const lapangan = this.dataset.lapangan;
+  
+        document.getElementById('editJadwalForm').action = `/adm/jadwal/${id}/edit/`;
+        document.getElementById('editLapangan').value = lapangan;
+        document.getElementById('editTanggal').value = tanggal;
+        document.getElementById('editJamMulai').value = jamMulai;
+        document.getElementById('editJamSelesai').value = jamSelesai;
+        document.getElementById('editStatus').value = isAvailable === 'true' ? 'True' : 'False';
+      });
+    });
+  });
+</script>
+{% endblock %}

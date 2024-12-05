@@ -1,0 +1,311 @@
+{% extends './base_admin.html' %} {% load currency_filters %}
+{% block admin_content %}
+<div class="container-fluid mt-4">
+  {% include '../components/alert_messages.html' %}
+
+  <!-- Header -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Manage Lapangan</h1>
+    <button
+      class="btn btn-primary"
+      data-bs-toggle="modal"
+      data-bs-target="#addLapanganModal"
+    >
+      <i class="ri-add-line"></i> Tambah Lapangan
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div class="card shadow mb-4">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Foto</th>
+              <th>Nama</th>
+              <th>Harga/Jam</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for lapangan in object_list %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>
+                <img
+                  src="{{ lapangan.gambar.url }}"
+                  alt="{{ lapangan.nama }}"
+                  class="img-thumbnail"
+                  style="height: 50px; width: 50px; object-fit: cover"
+                />
+              </td>
+              <td>{{ lapangan.nama }}</td>
+              <td>{{ lapangan.harga_per_jam|rupiah }}</td>
+              <td>
+                <span
+                  class="badge {% if lapangan.is_available %}bg-success{% else %}bg-danger{% endif %}"
+                >
+                  {{ lapangan.is_available|yesno:"Available,Not Available" }}
+                </span>
+              </td>
+              <td>
+                <button
+                  class="btn btn-info btn-sm edit-btn"
+                  data-id="{{ lapangan.id }}"
+                  data-nama="{{ lapangan.nama }}"
+                  data-harga="{{ lapangan.harga_per_jam }}"
+                  data-status="{{ lapangan.is_available }}"
+                  data-deskripsi="{{ lapangan.deskripsi }}"
+                  data-image="{{ lapangan.gambar.url }}"
+                  data-bs-toggle="modal"
+                  data-bs-target="#editLapanganModal"
+                >
+                  <i class="ri-edit-line"></i>
+                </button>
+                <button
+                  class="btn btn-danger btn-sm delete-btn"
+                  data-id="{{ lapangan.id }}"
+                  data-bs-toggle="modal"
+                  data-bs-target="#deleteLapanganModal"
+                >
+                  <i class="ri-delete-bin-line"></i>
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% include '../components/pagination.html' with page_obj=page_obj %}
+    </div>
+  </div>
+
+  <!-- Add Modal -->
+  <div class="modal fade" id="addLapanganModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Tambah Lapangan</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <form
+            method="POST"
+            action="{% url 'add_lapangan' %}"
+            enctype="multipart/form-data"
+          >
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label">Nama Lapangan</label>
+              <input type="text" class="form-control" name="nama" required />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Deskripsi</label>
+              <textarea
+                class="form-control"
+                name="deskripsi"
+                rows="3"
+                required
+              ></textarea>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Harga per Jam</label>
+              <input
+                type="number"
+                class="form-control"
+                name="harga_per_jam"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Gambar</label>
+              <input
+                type="file"
+                class="form-control"
+                name="gambar"
+                accept="image/*"
+                required
+              />
+            </div>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary">Simpan</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal fade" id="editLapanganModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Lapangan</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <form id="editForm" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row">
+              <!-- Left Column -->
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Nama Lapangan</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="nama"
+                    id="editNama"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Deskripsi</label>
+                  <textarea
+                    class="form-control"
+                    name="deskripsi"
+                    id="editDeskripsi"
+                    rows="3"
+                    required
+                  ></textarea>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Harga per Jam</label>
+                  <input
+                    type="number"
+                    class="form-control"
+                    name="harga_per_jam"
+                    id="editHarga"
+                    required
+                  />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Status</label>
+                  <select
+                    class="form-select"
+                    name="is_available"
+                    id="editStatus"
+                  >
+                    <option value="True">Available</option>
+                    <option value="False">Not Available</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Right Column -->
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label">Current Image</label>
+                  <div class="position-relative">
+                    <img
+                      id="editCurrentImage"
+                      src=""
+                      alt="Current field image"
+                      class="img-fluid rounded w-100 mb-2"
+                      style="object-fit: cover; max-height: 200px"
+                    />
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Gambar Baru (Optional)</label>
+                  <input
+                    type="file"
+                    class="form-control"
+                    name="gambar"
+                    accept="image/*"
+                    id="newImageInput"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="d-grid gap-2 mt-3">
+              <button type="submit" class="btn btn-primary">Update</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  <div class="modal fade" id="deleteLapanganModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Konfirmasi Hapus</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <p>Apakah anda yakin ingin menghapus lapangan ini?</p>
+          <form id="deleteForm" method="POST">
+            {% csrf_token %}
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-danger">Hapus</button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Batal
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Edit button handler
+    document.querySelectorAll(".edit-btn").forEach((button) => {
+      button.addEventListener("click", function () {
+        const id = this.dataset.id;
+        const nama = this.dataset.nama;
+        const deskripsi = this.dataset.deskripsi;
+        const harga = this.dataset.harga;
+        const status = this.dataset.status;
+        const image = this.dataset.image;
+
+        document.getElementById(
+          "editForm"
+        ).action = `/adm/lapangan/${id}/edit/`;
+        document.getElementById("editNama").value = nama;
+        document.getElementById("editDeskripsi").value = deskripsi;
+        document.getElementById("editHarga").value = harga;
+        document.getElementById("editStatus").value = status;
+        document.getElementById("editCurrentImage").src = image;
+      });
+    });
+
+    // Delete button handler
+    document.querySelectorAll(".delete-btn").forEach((button) => {
+      button.addEventListener("click", function () {
+        const id = this.dataset.id;
+        document.getElementById(
+          "deleteForm"
+        ).action = `/adm/lapangan/${id}/delete/`;
+      });
+    });
+  });
+</script>
+{% endblock %}

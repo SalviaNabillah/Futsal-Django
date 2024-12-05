@@ -1,0 +1,136 @@
+{% extends '../base.html' %} {% load static %} {% load currency_filters %}
+{% block content %}
+<div class="container-fluid mt-4">
+  {% include '../components/alert_messages.html' %}
+
+  <!-- Header -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">User Dashboard</h1>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="row">
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-primary shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div
+                class="text-xs font-weight-bold text-primary text-uppercase mb-1"
+              >
+                Total Pemesanan
+              </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {{ total|rupiah }}
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="ri-calendar-line ri-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div
+                class="text-xs font-weight-bold text-warning text-uppercase mb-1"
+              >
+                Pending
+              </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {{ pending_bookings }}
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="ri-time-line ri-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-success shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div
+                class="text-xs font-weight-bold text-success text-uppercase mb-1"
+              >
+                Selesai
+              </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {{ completed_bookings }}
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="ri-checkbox-circle-line ri-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Daftar Pemesanan -->
+  <div class="card shadow mb-4">
+    <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold text-primary">Daftar Pemesanan</h6>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        {% for item in pemesanan %}
+        <div class="col-lg-4 col-md-6 mb-4">
+          <div class="card h-100 border-0 shadow-sm bg-dark-subtle text-dark">
+            <div class="card-header bg-transparent">
+              <div class="d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold">{{ item.jadwal.lapangan.nama }}</h6>
+                <span class="badge {% if item.status == 'pending' %}bg-warning{% elif item.status == 'diterima' %}bg-info{% elif item.status == 'dibatalkan' %}bg-danger{% else %}bg-success{% endif %}">
+                  {{ item.status|capfirst }}
+                </span>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <small class="text-muted d-block">Tanggal Booking</small>
+                <span>{{ item.jadwal.tanggal|date:"d/m/Y" }}</span>
+              </div>
+              <div class="mb-3">
+                <small class="text-muted d-block">Jam</small>
+                <span>{{ item.jadwal.jam_mulai }} - {{ item.jadwal.jam_selesai }}</span>
+              </div>
+              <div class="mb-3">
+                <small class="text-muted d-block">Total Harga</small>
+                <span class="fw-bold">{{ item.hitung_harga|rupiah }}</span>
+              </div>
+              <div class="d-flex justify-content-between mt-3">
+                <a href="{% url 'detail_pemesanan_user' item.id %}" class="btn btn-primary btn-sm">
+                  <i class="ri-eye-line me-1"></i> Lihat Detail
+                </a>
+                {% if item.status == 'pending' %}
+                <a href="{% url 'cancel_pemesanan' item.id %}" class="btn btn-danger btn-sm">
+                  <i class="ri-close-line me-1"></i> Batalkan
+                </a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+          <div class="text-center py-5">
+            <i class="ri-calendar-line ri-3x text-muted mb-3"></i>
+            <p class="text-muted">Belum ada pemesanan</p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

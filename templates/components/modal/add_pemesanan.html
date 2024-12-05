@@ -1,0 +1,98 @@
+
+<div class="modal fade" id="addBookingModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Tambah Pemesanan Baru</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="addBookingForm" method="POST" action="{% url 'add_pemesanan' %}">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">Pelanggan</label>
+            <select class="form-select" name="user" id="userSelect" required>
+              <option value="">Pilih Pelanggan</option>
+              {% for user in users %}
+                <option value="{{ user.id }}">{{ user.username }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Lapangan</label>
+            <select class="form-select" name="lapangan" id="lapanganSelect" required>
+              <option value="">Pilih Lapangan</option>
+              {% for l in lapangan %}
+                <option value="{{ l.id }}">{{ l.nama }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Tanggal</label>
+            <input type="date" class="form-control" name="tanggal" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Jadwal</label>
+            <select class="form-select" name="jadwal" id="jadwalSelect" required disabled>
+              <option value="">Pilih Jadwal</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Metode Pembayaran</label>
+            <select class="form-select" name="metode_pembayaran" required>
+              <option value="transfer">Transfer Bank</option>
+              <option value="cash">Cash</option>
+            </select>
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary">Pesan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const lapanganSelect = document.getElementById('lapanganSelect');
+  const jadwalSelect = document.getElementById('jadwalSelect');
+  const tanggalInput = document.querySelector('input[name="tanggal"]');
+
+  // Set min tanggal ke hari ini
+  const today = new Date().toISOString().split('T')[0];
+  tanggalInput.min = today;
+
+  lapanganSelect.addEventListener('change', fetchJadwal);
+  tanggalInput.addEventListener('change', fetchJadwal);
+
+  function fetchJadwal() {
+    const lapanganId = lapanganSelect.value;
+    const tanggal = tanggalInput.value;
+    
+    if (!lapanganId || !tanggal) {
+      jadwalSelect.disabled = true;
+      return;
+    }
+    
+    fetch(`/api/jadwal/?lapangan=${lapanganId}&tanggal=${tanggal}`)
+      .then(response => response.json())
+      .then(data => {
+        jadwalSelect.innerHTML = '<option value="">Pilih Jadwal</option>';
+        
+        data.forEach(jadwal => {
+          const option = document.createElement('option');
+          option.value = jadwal.id;
+          option.textContent = `${jadwal.jam_mulai} - ${jadwal.jam_selesai}`;
+          jadwalSelect.appendChild(option);
+        });
+
+        jadwalSelect.disabled = false;
+      })
+      .catch(error => {
+        console.error(error);
+        jadwalSelect.disabled = true;
+      });
+  }
+});
+</script>

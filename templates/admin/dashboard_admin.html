@@ -1,0 +1,180 @@
+{% extends './base_admin.html' %} {% load static %} {% block admin_content %}
+<div class="container-fluid mt-4">
+  <!-- Header -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Admin Dashboard</h1>
+  </div>
+
+  <!-- statistic cards -->
+  <div class="row">
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-primary shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div
+                class="text-xs font-weight-bold text-primary text-uppercase mb-1"
+              >
+                Total Users
+              </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {{ total_users }}
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="ri-user-line ri-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-info shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div
+                class="text-xs font-weight-bold text-info text-uppercase mb-1"
+              >
+                Total Staff
+              </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {{ total_staff }}
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="ri-user-star-line ri-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div
+                class="text-xs font-weight-bold text-warning text-uppercase mb-1"
+              >
+                Pending Orders
+              </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {{ pending_pemesanan }}
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="ri-time-line ri-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-md-6 mb-4">
+      <div class="card border-left-success shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div
+                class="text-xs font-weight-bold text-success text-uppercase mb-1"
+              >
+                Total Orders
+              </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {{ total_pemesanan }}
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="ri-shopping-cart-2-line ri-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- table pemesanan -->
+  <div class="card shadow mb-4">
+    <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold text-primary">Recent Orders</h6>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered" width="100%" cellspacing="0">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>User</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in pemesanan %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ item.user.username }}</td>
+              <td>{{ item.created_at|date:"d/m/Y" }}</td>
+              <td>
+                <span
+                  class="badge {% if item.status == 'pending' %} bg-warning {% elif item.status == 'diterima' %} bg-info {% elif item.status == 'dibatalkan' %} bg-danger {% else %} bg-success {% endif %}"
+                >
+                  {{ item.status|capfirst }}
+                </span>
+              </td>
+              <td>
+                <a href="#" class="btn btn-primary btn-sm">View</a>
+                <a href="#" class="btn btn-danger btn-sm">Delete</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <!-- Pagination -->
+      {% if pemesanan.has_other_pages %}
+      <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+          {% if pemesanan.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ pemesanan.previous_page_number }}">&laquo;</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled">
+              <span class="page-link">&laquo;</span>
+            </li>
+          {% endif %}
+
+          {% for i in pemesanan.paginator.page_range %}
+            {% if pemesanan.number == i %}
+              <li class="page-item active">
+                <span class="page-link">{{ i }}</span>
+              </li>
+            {% else %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+              </li>
+            {% endif %}
+          {% endfor %}
+
+          {% if pemesanan.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ pemesanan.next_page_number }}">&raquo;</a>
+            </li>
+          {% else %}
+            <li class="page-item disabled">
+              <span class="page-link">&raquo;</span>
+            </li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

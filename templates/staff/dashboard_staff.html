@@ -1,0 +1,393 @@
+{% extends '../base.html' %} {% load currency_filters %} {% block content %}
+<div class="container-fluid mt-4">
+  {% include '../components/alert_messages.html' %}
+
+  <!-- Header -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Staff Dashboard</h1>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="row">
+    <!-- Total Pemesanan -->
+    <div class="col-xl-4 col-md-6 mb-4">
+      <div class="card border-left-primary shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div
+                class="text-xs font-weight-bold text-primary text-uppercase mb-1"
+              >
+                Total Pemesanan
+              </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {{ total_pemesanan }}
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="ri-calendar-line ri-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pending -->
+    <div class="col-xl-4 col-md-6 mb-4">
+      <div class="card border-left-warning shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div
+                class="text-xs font-weight-bold text-warning text-uppercase mb-1"
+              >
+                Pesanan Pending
+              </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {{ pending_pemesanan }}
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="ri-time-line ri-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Diterima -->
+    <div class="col-xl-4 col-md-6 mb-4">
+      <div class="card border-left-info shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div
+                class="text-xs font-weight-bold text-info text-uppercase mb-1"
+              >
+                Pesanan Diterima
+              </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {{ diterima_pemesanan }}
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="ri-check-double-line ri-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Selesai -->
+    <div class="col-xl-4 col-md-6 mb-4">
+      <div class="card border-left-success shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div
+                class="text-xs font-weight-bold text-success text-uppercase mb-1"
+              >
+                Pesanan Selesai
+              </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {{ completed_pemesanan }}
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="ri-checkbox-circle-line ri-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Lapangan -->
+    <div class="col-xl-4 col-md-6 mb-4">
+      <div class="card border-left-danger shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div
+                class="text-xs font-weight-bold text-danger text-uppercase mb-1"
+              >
+                Total Lapangan
+              </div>
+              <div class="h5 mb-0 font-weight-bold text-gray-800">
+                {{ total_lapangan }}
+              </div>
+            </div>
+            <div class="col-auto">
+              <i class="ri-football-line ri-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Navigation -->
+  <ul class="nav nav-tabs nav-fill mb-4" id="dashboardTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link active"
+        id="pemesanan-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#pemesanan"
+        type="button"
+        role="tab"
+      >
+        <i class="ri-calendar-line me-1"></i> Pemesanan
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        id="lapangan-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#lapangan"
+        type="button"
+        role="tab"
+      >
+        <i class="ri-football-line me-1"></i> Lapangan
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        class="nav-link"
+        id="ulasan-tab"
+        data-bs-toggle="tab"
+        data-bs-target="#ulasan"
+        type="button"
+        role="tab"
+      >
+        <i class="ri-star-line me-1"></i> Ulasan
+      </button>
+    </li>
+  </ul>
+
+  <!-- Tab Content -->
+  <div class="tab-content" id="dashboardTabsContent">
+    <!-- Pemesanan Tab -->
+    <div
+      class="tab-pane fade show active"
+      id="pemesanan"
+      role="tabpanel"
+      aria-labelledby="pemesanan-tab"
+    >
+      <div class="card shadow mb-4">
+        <div class="card-header py-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Daftar Pemesanan</h6>
+            <button
+              class="btn btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#addBookingModal"
+            >
+              <i class="ri-add-line"></i> Tambah Pemesanan
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <!-- pemesanan table -->
+          <div class="table-responsive">
+            <table
+              class="table table-bordered"
+              width="100%"
+              cellspacing="0"
+            >
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>User</th>
+                  <th>Tanggal</th>
+                  <th>Lapangan</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in pemesanan %}
+                <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td>{{ item.user.username }}</td>
+                  <td>{{ item.created_at|date:"d/m/Y" }}</td>
+                  <td>{{ item.jadwal.lapangan.nama }}</td>
+                  <td>
+                    <span
+                      class="badge {% if item.status == 'pending' %} bg-warning {% elif item.status == 'diterima' %} bg-info {% elif item.status == 'dibatalkan' %} bg-danger {% else %} bg-success {% endif %}"
+                    >
+                      {{ item.status|capfirst }}
+                    </span>
+                  </td>
+                  <td>
+                    <a
+                      href="{% url 'detail_pemesanan_staff' item.id %}"
+                      class="btn btn-primary btn-sm"
+                      >Detail</a
+                    >
+                    <button
+                      class="btn btn-success btn-sm update-btn"
+                      data-id="{{ item.id }}"
+                      data-status="{{ item.status }}"
+                    >
+                      Update
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% include '../components/pagination.html' with page_obj=pemesanan param_name='pemesanan_page' %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lapangan Tab -->
+    <div
+      class="tab-pane fade"
+      id="lapangan"
+      role="tabpanel"
+      aria-labelledby="lapangan-tab"
+    >
+      <div class="card shadow mb-4">
+        <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold text-primary">Daftar Lapangan</h6>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-bordered" width="100%" cellspacing="0">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Foto</th>
+                  <th>Nama</th>
+                  <th>Harga/Jam</th>
+                  <th>Rating</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for field in lapangan %}
+                <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td>
+                    <img
+                      src="{{ field.gambar.url }}"
+                      alt="{{ field.nama }}"
+                      class="img-thumbnail"
+                      style="height: 50px; width: 50px; object-fit: cover"
+                    />
+                  </td>
+                  <td>{{ field.nama }}</td>
+                  <td>{{ field.harga_per_jam|rupiah }}</td>
+                  <td>
+                    <div class="rating-stars">
+                      {% with ''|center:5 as range %}
+                      {% for _ in range %}
+                        {% if forloop.counter <= field.average_rating|default:0 %}
+                          <i class="ri-star-fill text-warning"></i>
+                        {% else %}
+                          <i class="ri-star-line text-warning"></i>
+                        {% endif %}
+                      {% endfor %}
+                      {% endwith %}
+                      <small class="text-muted ms-1">
+                        {% if field.average_rating %}
+                          ({{ field.average_rating|floatformat:1 }})
+                        {% else %}
+                          (0.0)
+                        {% endif %}
+                      </small>
+                    </div>
+                  </td>
+                  <td>
+                    <span
+                      class="badge {% if field.is_available %}bg-success{% else %}bg-danger{% endif %}"
+                    >
+                      {{ field.is_available|yesno:"Available,Not Available" }}
+                    </span>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% include '../components/pagination.html' with page_obj=lapangan param_name='lapangan_page' %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ulasan Tab -->
+    <div
+      class="tab-pane fade"
+      id="ulasan"
+      role="tabpanel"
+      aria-labelledby="ulasan-tab"
+    >
+      <div class="card shadow mb-4">
+        <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold text-primary">Daftar Ulasan</h6>
+        </div>
+        <div class="card-body">
+          <!-- Existing ulasan table -->
+          <div class="table-responsive">
+            <table class="table table-bordered" width="100%" cellspacing="0">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>User</th>
+                  <th>Lapangan</th>
+                  <th>Rating</th>
+                  <th>Komentar</th>
+                  <th>Tanggal</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for review in ulasan %}
+                <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td>{{ review.user.username }}</td>
+                  <td>{{ review.lapangan.nama }}</td>
+                  <td>
+                    <div class="rating-stars">
+                      {% with ''|center:5 as range %} {% for _ in range %}
+                      {% if forloop.counter <= review.rating %}
+                      <i class="ri-star-fill text-warning"></i>
+                      {% else %}
+                      <i class="ri-star-line text-warning"></i>
+                      {% endif %} {% endfor %} {% endwith %}
+                    </div>
+                  </td>
+                  <td>{{ review.komentar }}</td>
+                  <td>{{ review.created_at|date:"d/m/Y" }}</td>
+                  <td>
+                    <button
+                      class="btn btn-danger btn-sm delete-review"
+                      data-id="{{ review.id }}"
+                    >
+                      <i class="ri-delete-bin-line"></i>
+                    </button>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% include '../components/pagination.html' with page_obj=ulasan param_name='ulasan_page' %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- update pemesanan modal -->
+  {% include '../components/modal/update_pemesanan.html' %}
+
+  <!-- add pemesanan modal -->
+  {% include '../components/modal/add_pemesanan.html' %}
+
+  <!-- hapus ulasan modal -->
+  {% include '../components/modal/hapus_ulasan.html' %}
+</div>
+{% endblock %}

@@ -1,0 +1,78 @@
+<!-- templates/user/konfirmasi_pemesanan.html -->
+{% extends '../base.html' %} {% load form_tags %} {% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      {% if messages %} {% for message in messages %}
+      <div
+        class="alert alert-{{ message.tags }} alert-dismissible fade show"
+        role="alert"
+      >
+        {{ message }}
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>
+      {% endfor %} {% endif %}
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">Konfirmasi Pemesanan</h4>
+        </div>
+        <div class="card-body">
+          <!-- Detail Pemesanan -->
+          <div class="mb-4">
+            <h5 class="border-bottom pb-2">Detail Lapangan</h5>
+            <div class="row">
+              <div class="col-md-6">
+                <p><strong>Lapangan:</strong> {{ lapangan.nama }}</p>
+                <p>
+                  <strong>Tanggal:</strong> {{ jadwal.tanggal|date:"l, d M Y" }}
+                </p>
+              </div>
+              <div class="col-md-6">
+                <p>
+                  <strong>Jam:</strong>
+                  {{ jadwal.jam_mulai }} - {{ jadwal.jam_selesai }}
+                </p>
+                <p>
+                  <strong>Total Harga:</strong> Rp {{ harga|floatformat:0 }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Form Pembayaran -->
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-4">
+              <h5 class="border-bottom pb-2">Metode Pembayaran</h5>
+              {{ form.metode_pembayaran|addclass:'form-select' }}
+            </div>
+
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i>
+              Dengan menekan tombol konfirmasi, Anda menyetujui untuk melakukan
+              pemesanan lapangan ini.
+            </div>
+
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary">
+                Konfirmasi Pemesanan
+              </button>
+              <a
+                href="{% url 'detail_lapangan' lapangan.id %}"
+                class="btn btn-outline-secondary"
+              >
+                Kembali
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,123 @@
+{% extends "../base.html" %} {% block content %}
+<div class="container py-5">
+  {% include '../components/alert_messages.html' %}
+  
+  <div class="row">
+    <div class="col-md-6">
+      {% if lapangan.gambar %}
+      <img src="{{ lapangan.gambar.url }}" class="img-fluid rounded" style="max-height: 30vh" alt="{{ lapangan.nama }}" />
+      {% endif %}
+    </div>
+    <div class="col-md-6">
+      <h2>{{ lapangan.nama }}</h2>
+      <div class="rating-stars mb-3">
+        {% with ''|center:5 as range %}
+        {% for _ in range %}
+          {% if forloop.counter <= lapangan.avg_rating %}
+            <i class="ri-star-fill text-warning"></i>
+          {% else %}
+            <i class="ri-star-line text-warning"></i>
+          {% endif %}
+        {% endfor %}
+        {% endwith %}
+        <span class="text-muted ms-2">
+          {% if lapangan.avg_rating %}
+            {{ lapangan.avg_rating|floatformat:1 }} dari 5
+          {% else %}
+            Belum ada rating
+          {% endif %}
+        </span>
+      </div>
+      <p>{{ lapangan.deskripsi }}</p>
+      <p><strong>Harga per jam:</strong> Rp {{ lapangan.harga_per_jam }}</p>
+    </div>
+  </div>
+
+  <div class="mt-5">
+    <h3>Jadwal Tersedia</h3>
+    <div class="row">
+      {% for date in dates %}
+      <div class="col-md-4 mb-4">
+        <div class="card">
+          <div class="card-header">{{ date.date|date:"l, d M Y" }}</div>
+          <div class="card-body">
+            {% if date.slots %}
+              {% for slot in date.slots %}
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span>{{ slot.jam_mulai }} - {{ slot.jam_selesai }}</span>
+                <a href="{% url 'konfirmasi_pemesanan' slot.id %}" class="btn btn-sm btn-success">Pesan</a>
+              </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-muted">Tidak ada slot tersedia</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Ulasan -->
+  <div class="card mb-4">
+    <div class="card-header">
+      <h5 class="mb-0">Tambah Ulasan</h5>
+    </div>
+    <div class="card-body">
+      <form method="POST" action="{% url 'add_ulasan' lapangan.id %}">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">Rating</label>
+          <div class="rating-input">
+            {% for i in "12345" %}
+            <div class="form-check form-check-inline">
+              <input class="form-check-input" type="radio" name="rating" value="{{ forloop.counter }}" required>
+              <label class="form-check-label">{{ forloop.counter }}</label>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Komentar (Opsional)</label>
+          <textarea name="komentar" class="form-control" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Kirim Ulasan</button>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Reviews Section -->
+  <div class="mt-5">
+    <h3>Ulasan</h3>
+    {% for ulasan in lapangan.ulasan_set.all %}
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+          <div>
+            <h6 class="mb-1">{{ ulasan.user.username }}</h6>
+            <div class="rating-stars mb-2">
+              {% for i in "12345" %}
+                {% if forloop.counter <= ulasan.rating %}
+                  <i class="ri-star-fill text-warning"></i>
+                {% else %}
+                  <i class="ri-star-line text-warning"></i>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+          <small class="text-muted">{{ ulasan.created_at|date:"d/m/Y" }}</small>
+        </div>
+        {% if ulasan.komentar %}
+        <p class="mb-0">{{ ulasan.komentar }}</p>
+        {% endif %}
+      </div>
+    </div>
+    {% empty %}
+    <div class="text-center py-4">
+      <i class="ri-chat-3-line ri-3x text-muted mb-3"></i>
+      <p class="text-muted">Belum ada ulasan</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

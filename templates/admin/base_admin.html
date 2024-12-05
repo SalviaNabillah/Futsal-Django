@@ -1,0 +1,86 @@
+{% extends '../base.html' %} {% block content %}
+<div class="d-flex">
+  <!-- Sidebar -->
+  <div
+    class="sidebar bg-gradient-primary"
+    style="min-width: 250px; min-height: 100vh"
+  >
+    <div
+      class="sidebar-brand d-flex align-items-center justify-content-center py-4"
+    >
+      <div class="sidebar-brand-icon">
+        <i class="ri-admin-line text-white"></i>
+      </div>
+      <div class="sidebar-brand-text mx-3">Admin Panel</div>
+    </div>
+
+    <hr class="sidebar-divider bg-white" />
+
+    <!-- Nav Items -->
+    <div class="nav-items">
+      <a
+        href="{% url 'dashboard_admin' %}"
+        class="nav-item d-flex align-items-center px-4 py-3"
+      >
+        <i class="ri-dashboard-line me-2"></i>
+        Dashboard
+      </a>
+
+      <a href="#" class="nav-item d-flex align-items-center px-4 py-3">
+        <i class="ri-user-settings-line me-2"></i>
+        Manage Users
+      </a>
+
+      <a href="#" class="nav-item d-flex align-items-center px-4 py-3">
+        <i class="ri-team-line me-2"></i>
+        Manage Staff
+      </a>
+
+      <a
+        href="{% url 'manage_lapangan' %}"
+        class="nav-item d-flex align-items-center px-4 py-3"
+      >
+        <i class="ri-football-line me-2"></i>
+        Manage Lapangan
+      </a>
+
+      <a href="{% url 'manage_jadwal' %}" class="nav-item d-flex align-items-center px-4 py-3">
+        <i class="ri-calendar-2-line me-2"></i>
+        Manage Jadwal
+      </a>
+
+      <a href="#" class="nav-item d-flex align-items-center px-4 py-3">
+        <i class="ri-file-chart-line me-2"></i>
+        Reports
+      </a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content flex-grow-1 p-4">
+    {% block admin_content %}{% endblock %}
+  </div>
+</div>
+
+<style>
+  .sidebar {
+    box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+  }
+
+  .nav-item {
+    text-decoration: none;
+    color: black;
+    transition: background-color 0.3s;
+  }
+
+  .nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    text-decoration: none;
+  }
+
+  .sidebar-divider {
+    margin: 0 1rem;
+    opacity: 0.2;
+  }
+</style>
+{% endblock %}
