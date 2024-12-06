@@ -1,0 +1,79 @@
+{% extends '../base.html' %} {% load currency_filters %} {% block content %}
+<div class="container-fluid mt-4">
+  <!-- Back Button -->
+  <div class="mb-3">
+    <a href="{% url 'dashboard_admin' %}" class="btn btn-secondary">
+      <i class="ri-arrow-left-line"></i> Kembali
+    </a>
+  </div>
+
+  <!-- Order Details Card -->
+  <div class="card shadow mb-4">
+    <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold text-primary">
+        Detail Pemesanan #{{ pemesanan.id }}
+      </h6>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <table class="table">
+            <tr>
+              <th width="40%">Nomor Pemesanan</th>
+              <td>#{{ pemesanan.id }}</td>
+            </tr>
+            <tr>
+              <th>Pelanggan</th>
+              <td>{{ pemesanan.user.username }}</td>
+            </tr>
+            <tr>
+              <th>Lapangan</th>
+              <td>{{ pemesanan.jadwal.lapangan.nama }}</td>
+            </tr>
+            <tr>
+              <th>Jadwal</th>
+              <td>
+                {{ pemesanan.jadwal.tanggal|date:"d/m/Y" }} ({{ pemesanan.jadwal.jam_mulai }} - {{ pemesanan.jadwal.jam_selesai }})
+              </td>
+            </tr>
+            <tr>
+              <th>Status</th>
+              <td>
+                <span
+                  class="badge {% if pemesanan.status == 'pending' %}bg-warning{% elif pemesanan.status == 'diterima' %}bg-info{% elif pemesanan.status == 'dibatalkan' %}bg-danger{% else %}bg-success{% endif %}"
+                >
+                  {{ pemesanan.status|capfirst }}
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <th>Metode Pembayaran</th>
+              <td>{{ pemesanan.metode_pembayaran|capfirst }}</td>
+            </tr>
+            <tr>
+              <th>Total Harga</th>
+              <td>{{ pemesanan.hitung_harga|rupiah }}</td>
+            </tr>
+            <tr>
+              <th>Tanggal Pemesanan</th>
+              <td>{{ pemesanan.created_at|date:"d/m/Y H:i" }}</td>
+            </tr>
+          </table>
+        </div>
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-body">
+              <h5 class="card-title">Gambar Lapangan</h5>
+              <img
+                src="{{ pemesanan.jadwal.lapangan.gambar.url }}"
+                class="img-fluid rounded"
+                alt="Gambar Lapangan"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+<div class="modal fade" id="hapusPemesananModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Konfirmasi Hapus</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Apakah Anda yakin ingin menghapus pemesanan ini?</p>
+        <p class="text-muted mb-0">Pemesanan #<span id="hapusPemesananId"></span></p>
+      </div>
+      <div class="modal-footer">
+        <form id="hapusPemesananForm" method="POST">
+          {% csrf_token %}
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-danger">Hapus</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

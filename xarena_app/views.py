@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
@@ -7,31 +8,30 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse_lazy
-from django.views.generic import CreateView , DetailView, ListView
+from django.views.generic import CreateView , DetailView, ListView, FormView
 from django.http import HttpResponseNotAllowed, JsonResponse
 from django.core.paginator import Paginator
+from django.db.models import Count, Sum
+from django.db.models.functions import TruncMonth
 from .models import CustomUser, Lapangan, Jadwal, Pemesanan, Ulasan
 from .forms import CustomUserCreationForm, CustomAuthenticationForm
 
 
 # tampilan register
-def register_view(request):
-    if request.user.is_authenticated:
-        return redirect('landing')
+class RegisterView(FormView):
+    template_name = 'auth/register.html'
+    form_class = CustomUserCreationForm
+    success_url = reverse_lazy('login')
 
-    if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            messages.success(request, f'Akun berhasil dibuat untuk {user.username}. Silakan login.')
-            return redirect('login')
-        else:
-            for msg in form.error_messages:
-                messages.error(request, f'{msg}: {form.error_messages[msg]}')
-    else:
-        form = CustomUserCreationForm()
-
-    return render(request, 'auth/register.html', {'form': form})
+    def form_valid(self, form):
+        user = form.save()
+        messages.success(self.request, f'Akun berhasil dibuat untuk {user.username}. Silakan login.')
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        for msg in form.error_messages:
+            messages.error(self.request, f'{msg}: {form.error_messages[msg]}')
+        return super().form_invalid(form)
 
 # tampilan login
 def login_view(request):
@@ -625,3 +625,202 @@ def edit_jadwal(request, pk):
         return redirect('manage_jadwal')
         
     return HttpResponseNotAllowed(['POST'])
+
+# detail pemesanan untuk admin
+@login_required
+def detail_pemesanan_admin(request, pk):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
+    pemesanan = get_object_or_404(Pemesanan.objects.select_related('user', 'jadwal', 'jadwal__lapangan'), pk=pk)
+    
+    context = {
+        'pemesanan': pemesanan
+    }
+    return render(request, 'admin/detail_pemesanan_admin.html', context)
+
+# hapus pemesanan
+@login_required
+def hapus_pemesanan(request, pk):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
+    pemesanan = get_object_or_404(Pemesanan, pk=pk)
+    
+    if request.method == 'POST':
+        jadwal = pemesanan.jadwal
+        jadwal.is_available = True
+        jadwal.save()
+        
+        pemesanan.delete()
+        
+        messages.success(request, 'Pemesanan berhasil dihapus.')
+        return redirect('dashboard_admin')
+    
+    return JsonResponse({'error': 'Method not allowed'}, status=405)
+
+# manage users
+@login_required
+def manage_users(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
+    users = CustomUser.objects.filter(is_staff=False, is_superuser=False).order_by('username')
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        
+        if CustomUser.objects.filter(username=username).exists():
+            messages.error(request, 'Username sudah digunakan.')
+        else:
+            user = CustomUser.objects.create_user(username=username, email=email, password=password)
+            messages.success(request, 'User berhasil ditambahkan.')
+        
+    return render(request, 'admin/manage_users.html', {'users': users})
+
+# update users
+@login_required
+def update_users(request, id):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
+    if request.method == 'POST':
+        user = get_object_or_404(CustomUser, id=id)
+        user.username = request.POST.get('username')
+        user.email = request.POST.get('email')
+        
+        password = request.POST.get('password')
+        if password:
+            user.set_password(password)
+            
+        user.save()
+        messages.success(request, 'User berhasil diupdate.')
+        
+    return redirect('manage_users')
+
+# hapus users
+@login_required
+def hapus_users(request, id):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
+    user = get_object_or_404(CustomUser, id=id)
+    user.delete()
+    messages.success(request, 'User berhasil dihapus.')
+    return redirect('manage_users')
+
+# manage staff
+@login_required
+def manage_staff(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
+    staff = CustomUser.objects.filter(is_staff=True, is_superuser=False).order_by('username')
+    return render(request, 'admin/manage_staff.html', {'staff': staff})
+
+# add staff
+@login_required
+def add_staff(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        
+        if CustomUser.objects.filter(username=username).exists():
+            messages.error(request, 'Username sudah digunakan.')
+        else:
+            user = CustomUser.objects.create_user(username=username, email=email, password=password, is_staff=True)
+            messages.success(request, 'Staff berhasil ditambahkan.')
+            
+    return redirect('manage_staff')
+
+# update staff
+def update_staff(request, id):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
+    if request.method == 'POST':
+        staff = get_object_or_404(CustomUser, id=id)
+        staff.username = request.POST.get('username')
+        staff.email = request.POST.get('email')
+        
+        password = request.POST.get('password')
+        if password:
+            staff.set_password(password)
+            
+        staff.save()
+        messages.success(request, 'Staff berhasil diupdate.')
+        
+    return redirect('manage_staff')
+
+# hapus staff
+def hapus_staff(request, id):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
+    if request.method == 'POST':
+        staff = get_object_or_404(CustomUser, id=id)
+        staff.delete()
+        messages.success(request, 'Staff berhasil dihapus.')
+        
+    return redirect('manage_staff')
+
+# admin reports
+@login_required
+def admin_reports(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
+    # filter date range
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    # default date range
+    if not start_date:
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=30)
+    else:
+        start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date, '%Y-%m-%d')
+        
+    # query data dengan date filter
+    pemesanan = Pemesanan.objects.filter(created_at__range=[start_date, end_date])
+    
+    # hitung total
+    total_pendapatan = sum(pesan.hitung_harga() for pesan in pemesanan.exclude(status='dibatalkan'))
+    total_pemesanan = pemesanan.count()
+    total_dibatalkan = pemesanan.filter(status='dibatalkan').count()
+    
+    # hitung monthly revenue
+    monthly_revenue = pemesanan.exclude(status='dibatalkan').annotate(month=TruncMonth('created_at')).values('month').annotate(total=Sum('jadwal__lapangan__harga_per_jam')).order_by('month')
+    monthly_revenue_data = []
+    for item in monthly_revenue:
+        monthly_revenue_data.append({
+            'month': item['month'].strftime('%Y-%m-%d'),
+            'total': float(item['total'])  # Convert decimal to float
+        })
+
+    # penggunaan lapangan
+    lapangan_usage = pemesanan.exclude(status='dibatalkan').values('jadwal__lapangan__nama').annotate(total=Count('id')).order_by('-total')
+    lapangan_usage_data = []
+    for item in lapangan_usage:
+        lapangan_usage_data.append({
+            'jadwal__lapangan__nama': item['jadwal__lapangan__nama'],
+            'total': int(item['total'])  # Convert to integer
+        })
+
+    context = {
+        'start_date': start_date.strftime('%Y-%m-%d'),
+        'end_date': end_date.strftime('%Y-%m-%d'),
+        'total_pendapatan': total_pendapatan,
+        'total_pemesanan': total_pemesanan,
+        'total_dibatalkan': total_dibatalkan,
+        'monthly_revenue': json.dumps(monthly_revenue_data),  # Convert to JSON string
+        'lapangan_usage': json.dumps(lapangan_usage_data)    # Convert to JSON string
+    }
+    
+    return render(request, 'admin/admin_reports.html', context)

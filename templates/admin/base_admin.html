@@ -20,36 +20,48 @@
     <div class="nav-items">
       <a
         href="{% url 'dashboard_admin' %}"
-        class="nav-item d-flex align-items-center px-4 py-3"
+        class="nav-item d-flex align-items-center px-4 py-3 {% if request.resolver_match.url_name == 'dashboard_admin' %}active{% endif %}"
       >
         <i class="ri-dashboard-line me-2"></i>
         Dashboard
       </a>
 
-      <a href="#" class="nav-item d-flex align-items-center px-4 py-3">
+      <a
+        href="{% url 'manage_users' %}"
+        class="nav-item d-flex align-items-center px-4 py-3 {% if request.resolver_match.url_name == 'manage_users' %}active{% endif %}"
+      >
         <i class="ri-user-settings-line me-2"></i>
         Manage Users
       </a>
 
-      <a href="#" class="nav-item d-flex align-items-center px-4 py-3">
+      <a
+        href="{% url 'manage_staff' %}"
+        class="nav-item d-flex align-items-center px-4 py-3 {% if request.resolver_match.url_name == 'manage_staff' %}active{% endif %}"
+      >
         <i class="ri-team-line me-2"></i>
         Manage Staff
       </a>
 
       <a
         href="{% url 'manage_lapangan' %}"
-        class="nav-item d-flex align-items-center px-4 py-3"
+        class="nav-item d-flex align-items-center px-4 py-3 {% if request.resolver_match.url_name == 'manage_lapangan' %}active{% endif %}"
       >
         <i class="ri-football-line me-2"></i>
         Manage Lapangan
       </a>
 
-      <a href="{% url 'manage_jadwal' %}" class="nav-item d-flex align-items-center px-4 py-3">
+      <a
+        href="{% url 'manage_jadwal' %}"
+        class="nav-item d-flex align-items-center px-4 py-3 {% if request.resolver_match.url_name == 'manage_jadwal' %}active{% endif %}"
+      >
         <i class="ri-calendar-2-line me-2"></i>
         Manage Jadwal
       </a>
 
-      <a href="#" class="nav-item d-flex align-items-center px-4 py-3">
+      <a
+        href="{% url 'admin_reports' %}"
+        class="nav-item d-flex align-items-center px-4 py-3 {% if request.resolver_match.url_name == 'admin_reports' %}active{% endif %}"
+      >
         <i class="ri-file-chart-line me-2"></i>
         Reports
       </a>
@@ -74,8 +86,14 @@
   }
 
   .nav-item:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(0, 123, 255, 0.5);
     text-decoration: none;
+  }
+
+  .nav-item.active {
+    background-color: rgba(0, 123, 255, 0.9);
+    color: white;
+    font-weight: 500;
   }
 
   .sidebar-divider {
@@ -83,4 +101,7 @@
     opacity: 0.2;
   }
 </style>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}

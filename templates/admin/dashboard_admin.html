@@ -1,5 +1,8 @@
 {% extends './base_admin.html' %} {% load static %} {% block admin_content %}
 <div class="container-fluid mt-4">
+  <!-- Alert -->
+  {% include '../components/alert_messages.html' %}
+  
   <!-- Header -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Admin Dashboard</h1>
@@ -127,8 +130,8 @@
                 </span>
               </td>
               <td>
-                <a href="#" class="btn btn-primary btn-sm">View</a>
-                <a href="#" class="btn btn-danger btn-sm">Delete</a>
+                <a href="{% url 'detail_pemesanan_admin' item.id %}" class="btn btn-primary btn-sm">Lihat</a>
+                <button class="btn btn-danger btn-sm hapus-pemesanan" data-id="{{ item.id }}">Hapus</button>
               </td>
             </tr>
             {% endfor %}
@@ -176,5 +179,31 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal Hapus Pemesanan -->
+  {% include '../components/modal/hapus_pemesanan.html' %}
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const hapusButtons = document.querySelectorAll('.hapus-pemesanan');
+    const hapusModal = new bootstrap.Modal(document.getElementById('hapusPemesananModal'));
+    const hapusForm = document.getElementById('hapusPemesananForm');
+    
+    hapusButtons.forEach(btn => {
+      btn.addEventListener('click', function() {
+        const id = this.dataset.id;
+        
+        // Update modal content
+        document.getElementById('hapusPemesananId').textContent = id;
+        
+        // Update form action
+        hapusForm.action = `/adm/pemesanan/${id}/hapus/`;
+        
+        // Show modal
+        hapusModal.show();
+      });
+    });
+  });
+  </script>
 {% endblock %}

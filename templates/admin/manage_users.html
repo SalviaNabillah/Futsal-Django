@@ -1,0 +1,127 @@
+{% extends './base_admin.html' %}
+
+{% block admin_content %}
+<div class="container-fluid mt-4">
+  {% include '../components/alert_messages.html' %}
+
+  <!-- Header -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Manage Users</h1>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+      <i class="ri-add-line"></i> Add User
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div class="card shadow mb-4">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Date Joined</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ user.username }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.date_joined|date:"d/m/Y" }}</td>
+              <td>
+                <button class="btn btn-warning btn-sm edit-btn" 
+                  data-id="{{ user.id }}"
+                  data-username="{{ user.username }}"
+                  data-email="{{ user.email }}"
+                  data-bs-toggle="modal" 
+                  data-bs-target="#editUserModal">
+                  <i class="ri-edit-line"></i> Edit
+                </button>
+                <button class="btn btn-danger btn-sm hapus-btn"
+                  data-id="{{ user.id }}"
+                  data-username="{{ user.username }}"
+                  data-bs-toggle="modal"
+                  data-bs-target="#hapusUserModal">
+                  <i class="ri-delete-bin-line"></i> Hapus
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add User Modal -->
+  <div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Add New User</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <form method="POST">
+          {% csrf_token %}
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Username</label>
+              <input type="text" class="form-control" name="username" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" name="email" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Password</label>
+              <input type="password" class="form-control" name="password" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit User Modal -->
+  {% include '../components/modal/edit_user.html' %}
+
+  <!-- Hapus User Modal -->
+  {% include '../components/modal/hapus_user.html' %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Edit button handler
+  document.querySelectorAll('.edit-btn').forEach(button => {
+    button.addEventListener('click', function() {
+      const id = this.dataset.id;
+      const username = this.dataset.username; 
+      const email = this.dataset.email;
+
+      document.getElementById('editForm').action = `/adm/users/${id}/update/`;
+      document.getElementById('editUsername').value = username;
+      document.getElementById('editEmail').value = email;
+    });
+  });
+
+  // Hapus button handler  
+  document.querySelectorAll('.hapus-btn').forEach(button => {
+    button.addEventListener('click', function() {
+      const id = this.dataset.id;
+      const username = this.dataset.username;
+      
+      document.getElementById('hapusForm').action = `/adm/users/${id}/hapus/`;
+      document.getElementById('hapusUsername').textContent = username;
+    });
+  });
+});
+</script>
+{% endblock %}
