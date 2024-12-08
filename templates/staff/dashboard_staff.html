@@ -223,14 +223,15 @@
                     <a
                       href="{% url 'detail_pemesanan_staff' item.id %}"
                       class="btn btn-primary btn-sm"
-                      >Detail</a
                     >
+                      <i class="ri-eye-line me-2"></i>Detail
+                    </a>
                     <button
-                      class="btn btn-success btn-sm update-btn"
+                      class="btn btn-success btn-sm update-btn gap-2"
                       data-id="{{ item.id }}"
                       data-status="{{ item.status }}"
                     >
-                      Update
+                      <i class="ri-edit-line me-2"></i>Update
                     </button>
                   </td>
                 </tr>
