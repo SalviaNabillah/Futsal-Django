@@ -388,6 +388,9 @@ def delete_ulasan(request, pk):
     ulasan = get_object_or_404(Ulasan, pk=pk)
     ulasan.delete()
     messages.success(request, 'Ulasan berhasil dihapus.')
+
+    if request.user.is_superuser:
+        return redirect('manage_ulasan')
     return redirect('dashboard_staff')
     
     
@@ -406,7 +409,7 @@ def dashboard_admin(request):
     context = {
         'pemesanan': pemesanan,
         'total_users': CustomUser.objects.filter(is_staff=False, is_superuser=False).count(),
-        'total_staff': CustomUser.objects.filter(is_staff=True).count(),
+        'total_staff': CustomUser.objects.filter(is_staff=True, is_superuser=False).count(),
         'total_pemesanan': pemesanan_list.count(),
         'pending_pemesanan': pemesanan_list.filter(status='pending').count(),
     }
@@ -487,25 +490,42 @@ def manage_jadwal(request):
     
     # filter
     lapangan_id = request.GET.get('lapangan')
+    year = request.GET.get('year')
     month = request.GET.get('month')
+    tanggal = request.GET.get('tanggal')
 
     jadwal_list = Jadwal.objects.all()
     
     if lapangan_id:
         jadwal_list = jadwal_list.filter(lapangan_id=lapangan_id)
         
-    if month:
-        jadwal_list = jadwal_list.filter(tanggal__month=month)
-        
-    # group jadwal by date
-    dates = {}
-    for jadwal in jadwal_list.order_by('tanggal', 'jam_mulai'):
-        if jadwal.tanggal not in dates:
-            dates[jadwal.tanggal] = []
-        dates[jadwal.tanggal].append(jadwal)
+    if tanggal:
+        jadwal_list = jadwal_list.filter(tanggal=tanggal)
+        # group jadwal by lapangan
+        dates = {}
+        lapangan_list = Lapangan.objects.all()
+        for lapangan in lapangan_list:
+            schedules = jadwal_list.filter(lapangan=lapangan).order_by('jam_mulai')
+            if schedules.exists():
+                dates[lapangan] = list(schedules)
+    else:
+        if month:
+            jadwal_list = jadwal_list.filter(tanggal__month=month)
+        if year:
+            jadwal_list = jadwal_list.filter(tanggal__year=year)
+        # group jadwal by date
+        dates = {}
+        for jadwal in jadwal_list.order_by('tanggal', 'jam_mulai'):
+            if jadwal.tanggal not in dates:
+                dates[jadwal.tanggal] = []
+            dates[jadwal.tanggal].append(jadwal)
         
     # sort by date
-    sorted_dates = sorted(dates.items())
+    sorted_dates = sorted(dates.items(), key=lambda x: x[0].nama if isinstance(x[0], Lapangan) else x[0])
+        
+    years = Jadwal.objects.dates('tanggal', 'year').values_list('tanggal__year', flat=True)
+    if not years:
+        years = [datetime.now().year]
     
     # pagination
     paginator = Paginator(sorted_dates, 7)
@@ -531,8 +551,11 @@ def manage_jadwal(request):
         'dates': dates_page,
         'lapangan': Lapangan.objects.all(),
         'selected_lapangan': lapangan_id,
+        'selected_tanggal': tanggal,
         'selected_month': month,
+        'selected_year': year,
         'months': month_choices,
+        'years': years,
     }
     return render(request, 'admin/manage_jadwal.html', context)
 
@@ -570,23 +593,31 @@ def generate_jadwal(request):
             
             current_date = start_date
             while current_date <= end_date:
-                current_time = datetime.combine(current_date, start_time) 
+                current_time = datetime.combine(current_date, start_time)
                 end_datetime = datetime.combine(current_date, end_time)
                 
                 while current_time < end_datetime:
-                    next_time = current_time + timedelta(minutes=durasi) # Now using integer
+                    # Calculate end time for current slot
+                    next_time = current_time + timedelta(minutes=durasi)
+                    
                     if next_time.time() <= end_time:
+                        # Create schedule
                         Jadwal.objects.create(
                             lapangan=lapangan,
                             tanggal=current_date,
                             jam_mulai=current_time.time(),
                             jam_selesai=next_time.time()
                         )
-                    current_time = next_time
+                        
+                        # Add 30 min break
+                        current_time = next_time + timedelta(minutes=30)
+                    else:
+                        break
+                
                 current_date += timedelta(days=1)
                 
             messages.success(request, 'Jadwal berhasil dibuat')
-            
+
         except ValueError as e:
             messages.error(request, f'Error format input: {str(e)}')
         except Exception as e:
@@ -670,11 +701,15 @@ def manage_users(request):
         username = request.POST.get('username')
         email = request.POST.get('email')
         password = request.POST.get('password')
+        nama_lengkap = request.POST.get('nama_lengkap')
+        no_hp = request.POST.get('no_hp')
         
         if CustomUser.objects.filter(username=username).exists():
             messages.error(request, 'Username sudah digunakan.')
+        elif CustomUser.objects.filter(email=email).exists():
+            messages.error(request, 'Email sudah digunakan.')
         else:
-            user = CustomUser.objects.create_user(username=username, email=email, password=password)
+            user = CustomUser.objects.create_user(username=username, email=email, password=password, nama_lengkap=nama_lengkap, no_hp=no_hp)
             messages.success(request, 'User berhasil ditambahkan.')
         
     return render(request, 'admin/manage_users.html', {'users': users})
@@ -729,11 +764,15 @@ def add_staff(request):
         username = request.POST.get('username')
         email = request.POST.get('email')
         password = request.POST.get('password')
+        nama_lengkap = request.POST.get('nama_lengkap')
+        no_hp = request.POST.get('no_hp')
         
         if CustomUser.objects.filter(username=username).exists():
             messages.error(request, 'Username sudah digunakan.')
+        elif CustomUser.objects.filter(email=email).exists():
+            messages.error(request, 'Email sudah digunakan.')
         else:
-            user = CustomUser.objects.create_user(username=username, email=email, password=password, is_staff=True)
+            user = CustomUser.objects.create_user(username=username, email=email, password=password, nama_lengkap=nama_lengkap, no_hp=no_hp, is_staff=True)
             messages.success(request, 'Staff berhasil ditambahkan.')
             
     return redirect('manage_staff')
@@ -747,6 +786,8 @@ def update_staff(request, id):
         staff = get_object_or_404(CustomUser, id=id)
         staff.username = request.POST.get('username')
         staff.email = request.POST.get('email')
+        staff.nama_lengkap = request.POST.get('nama_lengkap')
+        staff.no_hp = request.POST.get('no_hp')
         
         password = request.POST.get('password')
         if password:
@@ -769,58 +810,29 @@ def hapus_staff(request, id):
         
     return redirect('manage_staff')
 
-# admin reports
+# manage ulasan
 @login_required
-def admin_reports(request):
+def manage_ulasan(request):
     if not request.user.is_superuser:
         raise PermissionDenied
     
-    # filter date range
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
-    
-    # default date range
-    if not start_date:
-        end_date = datetime.now()
-        start_date = end_date - timedelta(days=30)
-    else:
-        start_date = datetime.strptime(start_date, '%Y-%m-%d')
-        end_date = datetime.strptime(end_date, '%Y-%m-%d')
-        
-    # query data dengan date filter
-    pemesanan = Pemesanan.objects.filter(created_at__range=[start_date, end_date])
-    
-    # hitung total
-    total_pendapatan = sum(pesan.hitung_harga() for pesan in pemesanan.exclude(status='dibatalkan'))
-    total_pemesanan = pemesanan.count()
-    total_dibatalkan = pemesanan.filter(status='dibatalkan').count()
-    
-    # hitung monthly revenue
-    monthly_revenue = pemesanan.exclude(status='dibatalkan').annotate(month=TruncMonth('created_at')).values('month').annotate(total=Sum('jadwal__lapangan__harga_per_jam')).order_by('month')
-    monthly_revenue_data = []
-    for item in monthly_revenue:
-        monthly_revenue_data.append({
-            'month': item['month'].strftime('%Y-%m-%d'),
-            'total': float(item['total'])  # Convert decimal to float
-        })
+    ulasan_list = Ulasan.objects.all().order_by('-created_at')
 
-    # penggunaan lapangan
-    lapangan_usage = pemesanan.exclude(status='dibatalkan').values('jadwal__lapangan__nama').annotate(total=Count('id')).order_by('-total')
-    lapangan_usage_data = []
-    for item in lapangan_usage:
-        lapangan_usage_data.append({
-            'jadwal__lapangan__nama': item['jadwal__lapangan__nama'],
-            'total': int(item['total'])  # Convert to integer
-        })
-
+    search = request.GET.get('search', '')
+    if search:
+        ulasan_list = ulasan_list.filter(
+            Q(user__username__icontains=search) |
+            Q(lapangan__nama__icontains=search) |
+            Q(komentar__icontains=search)
+        )
+    
+    paginator = Paginator(ulasan_list, 10)
+    page = request.GET.get('page')
+    ulasan = paginator.get_page(page)
+    
     context = {
-        'start_date': start_date.strftime('%Y-%m-%d'),
-        'end_date': end_date.strftime('%Y-%m-%d'),
-        'total_pendapatan': total_pendapatan,
-        'total_pemesanan': total_pemesanan,
-        'total_dibatalkan': total_dibatalkan,
-        'monthly_revenue': json.dumps(monthly_revenue_data),  # Convert to JSON string
-        'lapangan_usage': json.dumps(lapangan_usage_data)    # Convert to JSON string
+        'ulasan': ulasan,
+        'search': search
     }
     
-    return render(request, 'admin/admin_reports.html', context)
+    return render(request, 'admin/manage_ulasan.html', context)

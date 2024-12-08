@@ -1,0 +1,83 @@
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add New User</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form method="POST" class="needs-validation" novalidate>
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="container-fluid px-0">
+            <div class="row">
+              <!-- Left Column -->
+              <div class="col-md-6">
+                <!-- Username field -->
+                <div class="mb-3">
+                  <label class="form-label">Username</label>
+                  <input type="text" class="form-control" name="username" required />
+                </div>
+
+                <!-- Email field -->
+                <div class="mb-3">
+                  <label class="form-label">Email</label>
+                  <input type="email" class="form-control" name="email" required />
+                </div>
+
+                <!-- Password field -->
+                <div class="mb-3">
+                  <label class="form-label">Password</label>
+                  <input type="password" class="form-control" name="password" required />
+                </div>
+              </div>
+
+              <!-- Right Column -->
+              <div class="col-md-6">
+                <!-- Nama Lengkap field -->
+                <div class="mb-3">
+                  <label class="form-label">Nama Lengkap</label>
+                  <input type="text" class="form-control" name="nama_lengkap" />
+                </div>
+
+                <!-- No HP field -->
+                <div class="mb-3">
+                  <label class="form-label">No. HP</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="no_hp"
+                    pattern="[0-9]+"
+                    maxlength="15"
+                    placeholder="contoh: 081234567890"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary w-100 w-md-auto">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+@media (max-width: 768px) {
+  .modal-dialog {
+    margin: 0.5rem;
+  }
+  
+  .modal-content {
+    padding: 1rem;
+  }
+  
+  .modal-body {
+    padding: 0;
+  }
+}
+</style>

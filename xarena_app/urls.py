@@ -52,7 +52,7 @@ urlpatterns = [
     path('adm/staff/<int:id>/update/', views.update_staff, name='update_staff'),
     path('adm/staff/<int:id>/hapus/', views.hapus_staff, name='hapus_staff'),
     
-    path('adm/reports/', views.admin_reports, name='admin_reports'),
+    path('adm/ulasan/', views.manage_ulasan, name='manage_ulasan'),
 
     # api
     path('api/jadwal/', views.get_available_jadwal, name='get_jadwal'),

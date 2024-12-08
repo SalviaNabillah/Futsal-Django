@@ -7,7 +7,8 @@ from decimal import Decimal
 
 # custom user model
 class CustomUser(AbstractUser):
-    bio = models.TextField(max_length=500, blank=True, null=True)
+    nama_lengkap = models.CharField(max_length=100, blank=True, null=True)
+    no_hp = models.CharField(max_length=15, blank=True, null=True)
 
     def __str__(self):
         return self.username

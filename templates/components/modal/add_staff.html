@@ -1,8 +1,9 @@
-<div class="modal fade" id="editUserModal" tabindex="-1">
+<!-- Add Staff Modal -->
+<div class="modal fade" id="addStaffModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Edit Staff</h5>
+        <h5 class="modal-title">Tambah Staff Baru</h5>
         <button
           type="button"
           class="btn-close"
@@ -11,8 +12,8 @@
       </div>
 
       <form
-        id="editUserForm"
         method="POST"
+        action="{% url 'add_staff' %}"
         class="needs-validation"
         novalidate
       >
@@ -22,55 +23,55 @@
             <div class="row">
               <!-- Left Column -->
               <div class="col-md-6">
+                <!-- Username field -->
                 <div class="mb-3">
                   <label class="form-label">Username</label>
                   <input
                     type="text"
                     class="form-control"
                     name="username"
-                    id="editUsername"
                     required
                   />
                 </div>
+
+                <!-- Email field -->
                 <div class="mb-3">
                   <label class="form-label">Email</label>
                   <input
                     type="email"
                     class="form-control"
                     name="email"
-                    id="editEmail"
                     required
                   />
                 </div>
+
+                <!-- Password field -->
                 <div class="mb-3">
-                  <label class="form-label">Password Baru (Opsional)</label>
+                  <label class="form-label">Password</label>
                   <input
                     type="password"
                     class="form-control"
                     name="password"
-                    id="editPassword"
+                    required
                   />
                 </div>
               </div>
 
               <!-- Right Column -->
               <div class="col-md-6">
+                <!-- Nama Lengkap field -->
                 <div class="mb-3">
                   <label class="form-label">Nama Lengkap</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    name="nama_lengkap"
-                    id="editNamaLengkap"
-                  />
+                  <input type="text" class="form-control" name="nama_lengkap" />
                 </div>
+
+                <!-- No HP field -->
                 <div class="mb-3">
                   <label class="form-label">No. HP</label>
                   <input
                     type="text"
                     class="form-control"
                     name="no_hp"
-                    id="editNoHp"
                     pattern="[0-9]+"
                     maxlength="15"
                     placeholder="contoh: 081234567890"
@@ -83,7 +84,7 @@
 
         <div class="modal-footer">
           <button type="submit" class="btn btn-primary w-100 w-md-auto">
-            Update
+            Simpan
           </button>
         </div>
       </form>
@@ -96,9 +97,11 @@
     .modal-dialog {
       margin: 0.5rem;
     }
+
     .modal-content {
       padding: 1rem;
     }
+
     .modal-body {
       padding: 0;
     }

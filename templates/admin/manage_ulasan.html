@@ -1,0 +1,140 @@
+<!-- templates/admin/manage_ulasan.html -->
+{% extends './base_admin.html' %}
+
+{% block admin_content %}
+<div class="container-fluid mt-4">
+  {% include '../components/alert_messages.html' %}
+
+  <!-- Header -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Manage Ulasan</h1>
+  </div>
+
+  <!-- Search & Filter -->
+  <div class="card shadow mb-4">
+    <div class="card-body">
+      <form method="GET" class="row g-3">
+        <div class="col-md">
+          <div class="input-group">
+            <input
+              type="text"
+              class="form-control"
+              name="search"
+              value="{{ search }}"
+              placeholder="Cari user, lapangan, atau komentar..."
+            >
+            <button class="btn btn-primary" type="submit">
+              <i class="ri-search-line"></i>
+            </button>
+            {% if search %}
+            <a href="{% url 'manage_ulasan' %}" class="btn btn-secondary">
+              <i class="ri-close-line"></i>
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="card shadow mb-4">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>User</th>
+              <th>Lapangan</th>
+              <th>Rating</th>
+              <th>Komentar</th>
+              <th>Tanggal</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for review in ulasan %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ review.user.username }}</td>
+              <td>{{ review.lapangan.nama }}</td>
+              <td>
+                <div class="rating-stars">
+                  {% with ''|center:5 as range %}
+                  {% for _ in range %}
+                    {% if forloop.counter <= review.rating %}
+                    <i class="ri-star-fill text-warning"></i>
+                    {% else %}
+                    <i class="ri-star-line text-warning"></i>
+                    {% endif %}
+                  {% endfor %}
+                  {% endwith %}
+                </div>
+              </td>
+              <td>{{ review.komentar|default:"-" }}</td>
+              <td>{{ review.created_at|date:"d/m/Y H:i" }}</td>
+              <td>
+                <button
+                  class="btn btn-danger btn-sm delete-review"
+                  data-id="{{ review.id }}"
+                  data-bs-toggle="modal"
+                  data-bs-target="#hapusUlasanModal"
+                >
+                  <i class="ri-delete-bin-line"></i>
+                </button>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-4">
+                <div class="text-muted">
+                  <i class="ri-chat-3-line ri-2x mb-2"></i>
+                  <p class="mb-0">Belum ada ulasan</p>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% include '../components/pagination.html' with page_obj=ulasan %}
+    </div>
+  </div>
+
+  <!-- Delete Modal -->
+  <div class="modal fade" id="hapusUlasanModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Konfirmasi Hapus</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>Apakah anda yakin ingin menghapus ulasan ini?</p>
+          <form id="hapusUlasanForm" method="POST">
+            {% csrf_token %}
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-danger">Hapus</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                Batal
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.delete-review').forEach(button => {
+    button.addEventListener('click', function() {
+      const id = this.dataset.id;
+      document.getElementById('hapusUlasanForm').action = `/adm/ulasan/${id}/hapus/`;
+    });
+  });
+});
+</script>
+{% endblock %}

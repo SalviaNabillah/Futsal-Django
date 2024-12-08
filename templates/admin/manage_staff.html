@@ -1,13 +1,15 @@
-{% extends './base_admin.html' %}
-
-{% block admin_content %}
+{% extends './base_admin.html' %} {% block admin_content %}
 <div class="container-fluid mt-4">
   {% include '../components/alert_messages.html' %}
 
   <!-- Header -->
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Manage Staff</h1>
-    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addStaffModal">
+    <button
+      class="btn btn-primary"
+      data-bs-toggle="modal"
+      data-bs-target="#addStaffModal"
+    >
       <i class="ri-add-line"></i> Tambah Staff
     </button>
   </div>
@@ -34,19 +36,25 @@
               <td>{{ staff.email }}</td>
               <td>{{ staff.date_joined|date:"d/m/Y" }}</td>
               <td>
-                <button class="btn btn-warning btn-sm edit-btn"
+                <button
+                  class="btn btn-warning btn-sm edit-btn"
                   data-id="{{ staff.id }}"
                   data-username="{{ staff.username }}"
                   data-email="{{ staff.email }}"
+                  data-namalengkap="{{ staff.nama_lengkap }}"
+                  data-nohp="{{ staff.no_hp }}"
                   data-bs-toggle="modal"
-                  data-bs-target="#editStaffModal">
+                  data-bs-target="#editStaffModal"
+                >
                   <i class="ri-edit-line"></i> Edit
                 </button>
-                <button class="btn btn-danger btn-sm hapus-btn"
+                <button
+                  class="btn btn-danger btn-sm hapus-btn"
                   data-id="{{ staff.id }}"
                   data-username="{{ staff.username }}"
                   data-bs-toggle="modal"
-                  data-bs-target="#hapusStaffModal">
+                  data-bs-target="#hapusStaffModal"
+                >
                   <i class="ri-delete-bin-line"></i> Hapus
                 </button>
               </td>
@@ -59,116 +67,50 @@
   </div>
 
   <!-- Add Staff Modal -->
-  <div class="modal fade" id="addStaffModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Tambah Staff Baru</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <form method="POST" action="{% url 'add_staff' %}">
-          {% csrf_token %}
-          <div class="modal-body">
-            <div class="mb-3">
-              <label class="form-label">Username</label>
-              <input type="text" class="form-control" name="username" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Email</label>
-              <input type="email" class="form-control" name="email" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Password</label>
-              <input type="password" class="form-control" name="password" required>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="submit" class="btn btn-primary">Simpan</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
+  {% include '../components/modal/add_staff.html' %}
 
   <!-- Edit Staff Modal -->
-  <div class="modal fade" id="editStaffModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Edit Staff</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <form id="editForm" method="POST">
-          {% csrf_token %}
-          <div class="modal-body">
-            <div class="mb-3">
-              <label class="form-label">Username</label>
-              <input type="text" class="form-control" name="username" id="editUsername" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Email</label>
-              <input type="email" class="form-control" name="email" id="editEmail" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Password Baru (Opsional)</label>
-              <input type="password" class="form-control" name="password">
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="submit" class="btn btn-primary">Update</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
+  {% include '../components/modal/edit_staff.html' %}
 
   <!-- Delete Staff Modal -->
-  <div class="modal fade" id="hapusStaffModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Hapus Staff</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          Apakah Anda yakin ingin menghapus staff <span id="hapusUsername" class="fw-bold"></span>?
-        </div>
-        <form id="hapusForm" method="POST">
-          {% csrf_token %}
-          <div class="modal-footer">
-            <button type="submit" class="btn btn-danger">Hapus</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
+  {% include '../components/modal/hapus_staff.html' %}
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Edit button handler
-  document.querySelectorAll('.edit-btn').forEach(button => {
-    button.addEventListener('click', function() {
-      const id = this.dataset.id;
-      const username = this.dataset.username;
-      const email = this.dataset.email;
+  document.addEventListener("DOMContentLoaded", function () {
+    // Edit button handler
+    document.querySelectorAll(".edit-btn").forEach((button) => {
+      button.addEventListener("click", function () {
+        const id = this.dataset.id;
+        const username = this.dataset.username;
+        const email = this.dataset.email;
+        const namaLengkap = this.dataset.namalengkap || '';
+        const noHp = this.dataset.nohp || '';
 
-      document.getElementById('editForm').action = `/adm/staff/${id}/update/`;
-      document.getElementById('editUsername').value = username;
-      document.getElementById('editEmail').value = email;
+        // Update form action URL
+        document.getElementById(
+          "editStaffForm"
+        ).action = `/adm/staff/${id}/update/`;
+
+        // Populate form fields
+        document.getElementById("editUsername").value = username;
+        document.getElementById("editEmail").value = email;
+        document.getElementById("editNamaLengkap").value = namaLengkap || "";
+        document.getElementById("editNoHp").value = noHp || "";
+        document.getElementById("editPassword").value = ""; 
+      });
+    });
+
+    // Delete button handler
+    document.querySelectorAll(".hapus-btn").forEach((button) => {
+      button.addEventListener("click", function () {
+        const id = this.dataset.id;
+        const username = this.dataset.username;
+
+        document.getElementById("hapusForm").action = `/adm/staff/${id}/hapus/`;
+        document.getElementById("hapusUsername").textContent = username;
+      });
     });
   });
-
-  // Delete button handler
-  document.querySelectorAll('.hapus-btn').forEach(button => {
-    button.addEventListener('click', function() {
-      const id = this.dataset.id;
-      const username = this.dataset.username;
-      
-      document.getElementById('hapusForm').action = `/adm/staff/${id}/hapus/`;
-      document.getElementById('hapusUsername').textContent = username;
-    });
-  });
-});
 </script>
 {% endblock %}

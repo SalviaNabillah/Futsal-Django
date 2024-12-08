@@ -8,7 +8,7 @@
   <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Manage Users</h1>
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
-      <i class="ri-add-line"></i> Add User
+      <i class="ri-add-line"></i> Tambah User
     </button>
   </div>
 
@@ -22,7 +22,7 @@
               <th>#</th>
               <th>Username</th>
               <th>Email</th>
-              <th>Date Joined</th>
+              <th>Tanggal Bergabung</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -59,36 +59,7 @@
   </div>
 
   <!-- Add User Modal -->
-  <div class="modal fade" id="addUserModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Add New User</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <form method="POST">
-          {% csrf_token %}
-          <div class="modal-body">
-            <div class="mb-3">
-              <label class="form-label">Username</label>
-              <input type="text" class="form-control" name="username" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Email</label>
-              <input type="email" class="form-control" name="email" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label">Password</label>
-              <input type="password" class="form-control" name="password" required>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="submit" class="btn btn-primary">Save</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
+  {% include '../components/modal/add_user.html' %}
 
   <!-- Edit User Modal -->
   {% include '../components/modal/edit_user.html' %}
@@ -105,10 +76,15 @@ document.addEventListener('DOMContentLoaded', function() {
       const id = this.dataset.id;
       const username = this.dataset.username; 
       const email = this.dataset.email;
+      const namaLengkap = this.dataset.namalengkap || '';
+      const noHp = this.dataset.nohp || '';
 
-      document.getElementById('editForm').action = `/adm/users/${id}/update/`;
+      document.getElementById('editUserForm').action = `/adm/users/${id}/update/`;
       document.getElementById('editUsername').value = username;
       document.getElementById('editEmail').value = email;
+      document.getElementById('editNamaLengkap').value = namaLengkap || '';
+      document.getElementById('editNoHp').value = noHp || '';
+      document.getElementById('editPassword').value = '';
     });
   });
 

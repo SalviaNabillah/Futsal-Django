@@ -16,6 +16,7 @@
   <div class="card shadow mb-4">
     <div class="card-body">
       <form method="GET" class="row g-3">
+        <!-- Existing lapangan filter -->
         <div class="col-md-4">
           <label class="form-label">Lapangan</label>
           <select name="lapangan" class="form-select" onchange="this.form.submit()">
@@ -27,7 +28,22 @@
             {% endfor %}
           </select>
         </div>
-        <div class="col-md-4">
+    
+        <!-- year filter -->
+        <div class="col-md-3">
+          <label class="form-label">Tahun</label>
+          <select name="year" class="form-select" onchange="this.form.submit()">
+            <option value="">Semua Tahun</option>
+            {% for year in years %}
+            <option value="{{ year }}" {% if selected_year|add:"0" == year %}selected{% endif %}>
+              {{ year }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+    
+        <!-- month filter -->
+        <div class="col-md-2">
           <label class="form-label">Bulan</label>
           <select name="month" class="form-select" onchange="this.form.submit()">
             <option value="">Semua Bulan</option>
@@ -38,67 +54,89 @@
             {% endfor %}
           </select>
         </div>
+
+        <!-- tanggal filter -->
+        <div class="col-md-3">
+          <label class="form-label">Tanggal</label>
+          <input 
+            type="date" 
+            name="tanggal" 
+            class="form-control"
+            value="{{ selected_tanggal|default:'' }}"
+            onchange="this.form.submit()"
+          >
+        </div>
       </form>
     </div>
   </div>
 
   <!-- Daily Schedule Cards -->
   <div class="row">
-    {% for date, schedules in dates %}
-    <div class="col-md-6 col-xl-4 mb-4">
-      <div class="card shadow h-100">
-        <div class="card-header bg-primary text-white">
-          <h6 class="m-0 font-weight-bold">{{ date|date:"l, d F Y" }}</h6>
-        </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-sm">
-              <thead>
-                <tr>
-                  <th>Jam</th>
-                  <th>Lapangan</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for schedule in schedules %}
-                <tr>
-                  <td>{{ schedule.jam_mulai }} - {{ schedule.jam_selesai }}</td>
-                  <td>{{ schedule.lapangan.nama }}</td>
-                  <td>
-                    <span class="badge {% if schedule.is_available %}bg-success{% else %}bg-danger{% endif %}">
-                      {{ schedule.is_available|yesno:"Available,Booked" }}
-                    </span>
-                  </td>
-                  <td>
-                    <button 
-                      class="btn btn-info btn-sm edit-jadwal"
-                      data-id="{{ schedule.id }}"
-                      data-tanggal="{{ schedule.tanggal|date:'Y-m-d' }}"
-                      data-jam-mulai="{{ schedule.jam_mulai|time:'H:i' }}"
-                      data-jam-selesai="{{ schedule.jam_selesai|time:'H:i' }}" 
-                      data-is-available="{{ schedule.is_available|lower }}"
-                      data-lapangan="{{ schedule.lapangan.nama }}"
-                      data-bs-toggle="modal"
-                      data-bs-target="#editJadwalModal"
-                    >
-                      <i class="ri-edit-line"></i>
-                    </button>
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
+    {% for key, schedules in dates %}
+      <div class="col-md-6 col-xl-4 mb-4">
+        <div class="card shadow h-100">
+          <!-- Change header based on grouping type -->
+          <div class="card-header bg-primary text-white">
+            {% if selected_tanggal %}
+              <h6 class="m-0 font-weight-bold">{{ key.nama }}</h6>
+              <small>{{ selected_tanggal|date:"l, d F Y" }}</small>
+            {% else %}
+              <h6 class="m-0 font-weight-bold">{{ key|date:"l, d F Y" }}</h6>
+            {% endif %}
+          </div>
+  
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>Jam</th>
+                    {% if not selected_tanggal %}<th>Lapangan</th>{% endif %}
+                    <th>Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for schedule in schedules %}
+                  <tr>
+                    <td>{{ schedule.jam_mulai }} - {{ schedule.jam_selesai }}</td>
+                    {% if not selected_tanggal %}
+                      <td>{{ schedule.lapangan.nama }}</td>
+                    {% endif %}
+                    <td>
+                      <span class="badge {% if schedule.is_available %}bg-success{% else %}bg-danger{% endif %}">
+                        {{ schedule.is_available|yesno:"Available,Booked" }}
+                      </span>
+                    </td>
+                    <td>
+                      <button 
+                        class="btn btn-info btn-sm edit-jadwal"
+                        data-id="{{ schedule.id }}"
+                        data-tanggal="{{ schedule.tanggal|date:'Y-m-d' }}"
+                        data-jam-mulai="{{ schedule.jam_mulai|time:'H:i' }}"
+                        data-jam-selesai="{{ schedule.jam_selesai|time:'H:i' }}" 
+                        data-is-available="{{ schedule.is_available|lower }}"
+                        data-lapangan="{{ schedule.lapangan.nama }}"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editJadwalModal"
+                      >
+                        <i class="ri-edit-line"></i>
+                      </button>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
-    </div>
     {% empty %}
-    <div class="col-12">
-      <div class="alert alert-info">
-        Tidak ada jadwal yang tersedia
+      <div class="col-12">
+        <div class="alert alert-info">
+          Tidak ada jadwal yang tersedia
+        </div>
       </div>
-    </div>
     {% endfor %}
   </div>
   {% include '../components/pagination.html' with page_obj=jadwal %}
