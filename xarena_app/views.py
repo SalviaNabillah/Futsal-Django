@@ -11,7 +11,7 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView , DetailView, ListView, FormView
 from django.http import HttpResponseNotAllowed, JsonResponse
 from django.core.paginator import Paginator
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Q
 from django.db.models.functions import TruncMonth
 from .models import CustomUser, Lapangan, Jadwal, Pemesanan, Ulasan
 from .forms import CustomUserCreationForm, CustomAuthenticationForm
