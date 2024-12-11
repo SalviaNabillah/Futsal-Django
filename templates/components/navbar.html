@@ -74,14 +74,14 @@
       <div class="d-flex gap-3 justify-content-center">
         {% if user.is_authenticated %}
         <button type="button" class="nav-item btn btn-danger btn-sm">
-          <a class="nav-link text-white" href="{% url 'logout' %}">LOGOUT</a>
+          <a class="nav-link text-white" href="{% url 'logout' %}">Logout</a>
         </button>
         {% else %}
         <button type="button" class="nav-item btn btn-primary btn-sm">
-          <a class="nav-link" href="{% url 'login' %}">MASUK</a>
+          <a class="nav-link" href="{% url 'login' %}">Masuk</a>
         </button>
         <button type="button" class="nav-item btn btn-outline-primary btn-sm">
-          <a class="nav-link" href="{% url 'register' %}">DAFTAR</a>
+          <a class="nav-link " href="{% url 'register' %}">Daftar</a>
         </button>
         {% endif %}
       </div>
